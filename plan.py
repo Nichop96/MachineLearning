@@ -1,5 +1,6 @@
 import numpy as np
 import xml.etree.ElementTree as ET
+import action
 
 
 class Plan:
@@ -10,7 +11,7 @@ class Plan:
         init_root = ET.fromstring(data[0])
         goals_root = ET.fromstring(data[len(data) - 1])
         self.initial_state = [child.text for child in init_root]
-        self.actions = [act[:-2] for act in data[1:-1]]
+        act = [act[:-2] for act in data[1:-1]]
         self.goals = [child.text for child in goals_root]
-
+        self.actions = [action.Action(a) for a in act]
 
