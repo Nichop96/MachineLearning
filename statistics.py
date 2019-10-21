@@ -1,27 +1,28 @@
 import numpy as np
 import pandas
+import logistic_domain
+import utils
 
 def summary(array):
-    print("min: "+str(min(array))+"\nmax: "+str(max(array))+"\nmean: "+str(sum(array)/len(array)))
+    print("min: "+str(min(array))+"\nmax: "+str(max(array))+"\nmean: "+str(sum(array)/len(array))+"\nmedian: "+str(np.median(array))+"\n1th quartile: "+str(np.percentile(array,25))+"\n3rd quartile: "+str(np.percentile(array,75))+"\n")
 
-if __name__ == '__main__':
-    airplanes = []
+def init_statistics(domains):
+    airplanes = [len(domain.apn) for domain in domains]
+    cities = [len(domain.cit) for domain in domains]
+    trucks = [len(domain.tru) for domain in domains]
+    locations = [len(domain.loc) for domain in domains]
+    objects = [len(domain.obj) for domain in domains]
 
-
-
-    file = "pfile-51-0-1--I0-G0-n0.pddl"
-    f = open(file, "r")
-    lines = [line for line in f.readlines()]
-    apn = lines[5].strip().split("(:objects ")[1].split(" ")
-    cit = lines[6].strip().split(" ")
-    tru = lines[7].strip().split(" ")
-    loc = lines[8].strip().split(" ")
-    obj = lines[9].strip().split(" ")
-
-    airplanes.append(len(apn))
-    airplanes.append(10)
+    print("Airplanes")
     summary(airplanes)
-
+    print("Cities")
+    summary(cities)
+    print("Trucks")
+    summary(trucks)
+    print("Locations")
+    summary(locations)
+    print("Objects")
+    summary(objects)
 
 
 
