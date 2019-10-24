@@ -11,3 +11,4 @@ def get_plans(folder):
 def logistics_domains(folder):
     domains_list = [logistic_domain.LogisticDomain(folder + "/" + file) for file in os.listdir(folder) if file.endswith(".pddl")]
     return domains_list
+
