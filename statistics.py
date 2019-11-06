@@ -1,5 +1,4 @@
 import numpy as np
-import pandas
 import logistic_domain
 import utils
 

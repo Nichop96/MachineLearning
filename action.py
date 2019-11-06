@@ -12,3 +12,15 @@ class Action:
         self.precondition = [child.text[1:-1] for child in root.find("Preconds")]
         self.positiveEffects = [child.text[1:-1] for child in root.find("PositiveEffects")]
         self.negativeEffects = [child.text[1:-1] for child in root.find("NegativeEffects")]
+
+    def code_action(self, coded_action):
+        self.oneHotAtction = coded_action
+
+    def code_positiveEffects(self, coded_positiveEffects):
+        self.oneHotpositiveEffects = coded_positiveEffects
+
+    def code_negativeEffects(self, coded_negativeEffects):
+        self.oneHotnegativeEffects = coded_negativeEffects
+
+    def code_precondition(self, coded_precondition):
+        self.oneHotprecondition = coded_precondition

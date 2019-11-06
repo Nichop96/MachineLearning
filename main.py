@@ -9,11 +9,11 @@ import natsort as na
 
 if __name__ == '__main__':
     file1 = open("apn.obj", "rb")
-    apn_list = pickle.load(file1)[1:]
+    apn_list = pickle.load(file1)
     file2 = open("cit.obj", "rb")
     cit_list = pickle.load(file2)
     file3 = open("obj.obj", "rb")
-    obj_list = pickle.load(file3)[1:]
+    obj_list = pickle.load(file3)
     file4 = open("loc.obj", "rb")
     loc_list = pickle.load(file4)
     file5 = open("tru.obj", "rb")

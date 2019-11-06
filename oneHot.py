@@ -1,13 +1,15 @@
 import numpy as np
 
-NUMBER_ACTIONS = 12
+NUMBER_ACTIONS = 10
 MAX_OBJECTS = 103
-ACTIONS = ["LOAD-TRUCK", "UNLOAD-TRUCK", "DRIVE-TRUCK", "LOAD-AIRPLANE", "UNLOAD-AIRPLANE", "FLY-AIRPLANE","at","in","not at", "not in"]
+ACTIONS = ["LOAD-TRUCK", "UNLOAD-TRUCK", "DRIVE-TRUCK", "LOAD-AIRPLANE", "UNLOAD-AIRPLANE", "FLY-AIRPLANE", "at", "in", "not at", "not in"]
 TYPES_OBJECT = ["APN", "CIT", "OBJ", "LOC", "TRU"]
+
 
 def split_name_action(action):
     array = action.strip().split(" ")
     return array
+
 
 def oneHot_parameter(parameter, apn_list, cit_list, obj_list, loc_list, tru_list):
     type = np.zeros(len(TYPES_OBJECT))
@@ -18,16 +20,21 @@ def oneHot_parameter(parameter, apn_list, cit_list, obj_list, loc_list, tru_list
         type[1] = 1
         return np.concatenate([type, oneHot(parameter, cit_list, MAX_OBJECTS)])
     if "OBJ" in parameter:
+        type[2] = 1
+        return np.concatenate([type, oneHot(parameter, obj_list, MAX_OBJECTS)])
+    if "LOC" in parameter:
         type[3] = 1
         return np.concatenate([type, oneHot(parameter, loc_list, MAX_OBJECTS)])
     if "TRU" in parameter:
         type[4] = 1
         return np.concatenate([type, oneHot(parameter, tru_list, MAX_OBJECTS)])
 
+
 def invalid_encode():
     array = np.zeros(len(TYPES_OBJECT)+MAX_OBJECTS)
     array[len(TYPES_OBJECT)] = 1
     return array
+
 
 def oneHot(parameter, array, max_length):
     index = -1
@@ -40,19 +47,54 @@ def oneHot(parameter, array, max_length):
         return array
     return -1
 
+
 def oneHotAction(action, apn_list, cit_list, obj_list, loc_list, tru_list):
     array = split_name_action(action)
-    code = []
-    code.append(oneHot(array[0], ACTIONS, NUMBER_ACTIONS))
+    code = oneHot(array[0], ACTIONS, NUMBER_ACTIONS)
     for i in range(1, len(array)):
-        code.append(oneHot_parameter(array[i], apn_list, cit_list, obj_list, loc_list, tru_list))
+        code = np.concatenate((code, oneHot_parameter(array[i], apn_list, cit_list, obj_list, loc_list, tru_list)))
     for i in range(len(array) - 1, 4):
-        code.append(invalid_encode())
+        code = np.concatenate([code, invalid_encode()])
     return code
 
+
+def oneHotPredicate(pred, apn_list, cit_list, obj_list, loc_list, tru_list):
+    array = split_name_action(pred)
+    code = oneHot(array[0], ACTIONS, NUMBER_ACTIONS)
+    for i in range(1, len(array)):
+        code = np.concatenate((code, oneHot_parameter(array[i].upper(), apn_list, cit_list, obj_list, loc_list, tru_list)))
+    for i in range(len(array) - 1, 4):
+        code = np.concatenate([code, invalid_encode()])
+    return code
+
+
+def oneHotPredicateNeg(negEff, apn_list, cit_list, obj_list, loc_list, tru_list):
+    array = split_name_action(negEff)
+    if array[0] == "in":
+        array[0] = "not in"
+    if array[0] == "at":
+        array[0] = "not at"
+    code = oneHot(array[0], ACTIONS, NUMBER_ACTIONS)
+    for i in range(1, len(array)):
+        code = np.concatenate((code, oneHot_parameter(array[i].upper(), apn_list, cit_list, obj_list, loc_list, tru_list)))
+    for i in range(len(array) - 1, 4):
+        code = np.concatenate([code, invalid_encode()])
+    return code
+
+
 def init(plans, apn_list, cit_list, obj_list, loc_list, tru_list):
-    code = []
     for p in plans:
         for action in p.actions:
-            code.append(oneHotAction(action.name, apn_list, cit_list, obj_list, loc_list, tru_list))
-    return code
+            action.code_action(oneHotAction(action.name, apn_list, cit_list, obj_list, loc_list, tru_list))
+            pos = []
+            for posEff in action.positiveEffects:
+                pos.append(oneHotPredicate(posEff, apn_list, cit_list, obj_list, loc_list, tru_list))
+            precond = []
+            for prec in action.precondition:
+                precond.append(oneHotPredicate(prec, apn_list, cit_list, obj_list, loc_list, tru_list))
+            neg = []
+            for negEff in action.negativeEffects:
+                neg.append(oneHotPredicateNeg(negEff, apn_list, cit_list, obj_list, loc_list, tru_list))
+            action.code_positiveEffects(np.asarray(pos))
+            action.code_precondition(np.asarray(precond))
+            action.code_negativeEffects(np.asarray(neg))
