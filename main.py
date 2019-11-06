@@ -6,6 +6,7 @@ import save_arrays
 import pickle
 import oneHot
 import natsort as na
+import crea_istanze
 
 if __name__ == '__main__':
     file1 = open("apn.obj", "rb")
@@ -34,4 +35,5 @@ if __name__ == '__main__':
     # ave_arrays.save(domains, "domains.obj")
     # encoder.encoder(domains)
     code = oneHot.init(plans, apn_list, cit_list, obj_list, loc_list, tru_list)
+    db = crea_istanze.crea(plans)
     print("fine")
