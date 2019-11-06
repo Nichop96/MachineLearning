@@ -33,5 +33,5 @@ if __name__ == '__main__':
     print("OK")
     # ave_arrays.save(domains, "domains.obj")
     # encoder.encoder(domains)
-    oneHot.init(plans, apn_list, cit_list, obj_list, loc_list, tru_list)
+    code = oneHot.init(plans, apn_list, cit_list, obj_list, loc_list, tru_list)
     print("fine")

@@ -1,61 +1,58 @@
 import numpy as np
 
-NUMBER_ACTIONS = 6
-ACTIONS = ["LOAD-TRUCK", "UNLOAD-TRUCK", "DRIVE-TRUCK", "LOAD-AIRPLANE", "UNLOAD-AIRPLANE", "FLY-AIRPLANE"]
+NUMBER_ACTIONS = 12
+MAX_OBJECTS = 103
+ACTIONS = ["LOAD-TRUCK", "UNLOAD-TRUCK", "DRIVE-TRUCK", "LOAD-AIRPLANE", "UNLOAD-AIRPLANE", "FLY-AIRPLANE","at","in","not at", "not in"]
+TYPES_OBJECT = ["APN", "CIT", "OBJ", "LOC", "TRU"]
 
 def split_name_action(action):
     array = action.strip().split(" ")
     return array
 
-def oneHot_action(name_action):
-    index = -1
-    for id, val in enumerate(ACTIONS):
-        if name_action == val:
-            index = id
-    if index != -1:
-        array = []
-        for i in range(NUMBER_ACTIONS):
-            if i == index:
-                array.append(1)
-            else:
-                array.append(0)
-        return array
-    return -1
-
 def oneHot_parameter(parameter, apn_list, cit_list, obj_list, loc_list, tru_list):
-    type = np.zeros(6)
+    type = np.zeros(len(TYPES_OBJECT))
     if "APN" in parameter:
         type[0] = 1
-        return oneHot(parameter, apn_list), type
+        return np.concatenate([type, oneHot(parameter, apn_list, MAX_OBJECTS)])
     if "CIT" in parameter:
         type[1] = 1
-        return oneHot(parameter, cit_list)
+        return np.concatenate([type, oneHot(parameter, cit_list, MAX_OBJECTS)])
     if "OBJ" in parameter:
-        type[2] = 1
-        return oneHot(parameter, obj_list)
-    if "LOC" in parameter:
         type[3] = 1
-        return oneHot(parameter, loc_list)
+        return np.concatenate([type, oneHot(parameter, loc_list, MAX_OBJECTS)])
     if "TRU" in parameter:
         type[4] = 1
-        return oneHot(parameter, tru_list)
+        return np.concatenate([type, oneHot(parameter, tru_list, MAX_OBJECTS)])
 
+def invalid_encode():
+    array = np.zeros(len(TYPES_OBJECT)+MAX_OBJECTS)
+    array[len(TYPES_OBJECT)] = 1
+    return array
 
-def oneHot(parameter, array):
+def oneHot(parameter, array, max_length):
     index = -1
     for id, val in enumerate(array):
         if parameter == val:
             index = id
     if index != -1:
-        #array = np.zeros(len(array))
-        array = np.zeros(103)
+        array = np.zeros(max_length)
         array[index] = 1
         return array
     return -1
 
+def oneHotAction(action, apn_list, cit_list, obj_list, loc_list, tru_list):
+    array = split_name_action(action)
+    code = []
+    code.append(oneHot(array[0], ACTIONS, NUMBER_ACTIONS))
+    for i in range(1, len(array)):
+        code.append(oneHot_parameter(array[i], apn_list, cit_list, obj_list, loc_list, tru_list))
+    for i in range(len(array) - 1, 4):
+        code.append(invalid_encode())
+    return code
+
 def init(plans, apn_list, cit_list, obj_list, loc_list, tru_list):
+    code = []
     for p in plans:
         for action in p.actions:
-            array = split_name_action(action.name)
-            #print(array[0],oneHot_action(array[0]))
-            print(array[1], oneHot_parameter(array[1], apn_list, cit_list, obj_list, loc_list, tru_list))
+            code.append(oneHotAction(action.name, apn_list, cit_list, obj_list, loc_list, tru_list))
+    return code
