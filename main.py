@@ -1,12 +1,12 @@
 import utils
-import statistics
 import numpy as np
-import encoder
-import save_arrays
 import pickle
 import oneHot
 import natsort as na
 import crea_istanze
+import neuralNet
+from matplotlib import pyplot as plt
+
 
 if __name__ == '__main__':
     file1 = open("apn.obj", "rb")
@@ -36,4 +36,16 @@ if __name__ == '__main__':
     # encoder.encoder(domains)
     code = oneHot.init(plans, apn_list, cit_list, obj_list, loc_list, tru_list)
     db = crea_istanze.crea(plans)
+    net = neuralNet.get_net(len(db[0][0]))
+    train_x, train_y, test_x, test_y = neuralNet.split(db)
+    # train_l, valid_l = neuralNet.k_fold(5, train_x, train_y, 60, 128)
+    # print('%d-fold validation: avg train rmse: %f, avg valid rmse: %f'
+    #       % (5, train_l, valid_l))
+    history = net.fit(train_x, train_y, batch_size=128, epochs=60, verbose=2)
+    plt.plot(history.history['loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
     print("fine")
