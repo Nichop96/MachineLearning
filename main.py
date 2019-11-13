@@ -41,11 +41,16 @@ if __name__ == '__main__':
     # train_l, valid_l = neuralNet.k_fold(5, train_x, train_y, 60, 128)
     # print('%d-fold validation: avg train rmse: %f, avg valid rmse: %f'
     #       % (5, train_l, valid_l))
-    history = net.fit(train_x, train_y, batch_size=128, epochs=60, verbose=2)
+
+    print(net.summary())
+    history = net.fit(train_x, train_y, batch_size=128, epochs=60, verbose=2, validation_data=(test_x, test_y))
     plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
     plt.title('model loss')
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     plt.show()
+    score = net.evaluate(test_x, test_y)
+    print(score)
     print("fine")
