@@ -4,17 +4,21 @@ from keras.layers import Input
 from keras.layers import Dense
 import keras
 from matplotlib import pyplot as plt
+import save_arrays
 
 
-def split(db):
+def save_db(db):
     np.random.shuffle(db)
-    dim = int(0.8*len(db))
+    dim = int(0.8 * len(db))
     train, test = db[:dim], db[dim:]
-    train_x = [x[0] for x in train]
-    train_y = [y[1] for y in train]
-    test_x = [x[0] for x in test]
-    test_y = [y[1] for y in test]
-    return np.array(train_x), np.array(train_y), np.array(test_x), np.array(test_y)
+    save_arrays.save(train, "training_set")
+    save_arrays.save(test, "test_set")
+
+
+def split(set):
+    set_x = [x[0] for x in set]
+    set_y = [y[1] for y in set]
+    return np.array(set_x), np.array(set_y)
 
 
 def get_net(dim):
