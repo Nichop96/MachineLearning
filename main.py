@@ -77,4 +77,5 @@ if __name__ == '__main__':
             tmp[0][:] = res_y[i][:]
             tmp[1][:] = test_y[i][:]
             l.append(tmp)
+        a = np.sum(np.power(np.absolute(np.subtract(tmp[0], tmp[1])), 2))/len(tmp[0])
         print('fine')
