@@ -1,7 +1,7 @@
 import numpy as np
 
 NUMBER_ACTIONS = 10
-MAX_OBJECTS = 103
+MAX_OBJECTS = 104
 ACTIONS = ["LOAD-TRUCK", "UNLOAD-TRUCK", "DRIVE-TRUCK", "LOAD-AIRPLANE", "UNLOAD-AIRPLANE", "FLY-AIRPLANE", "at", "in", "not at", "not in"]
 TYPES_OBJECT = ["APN", "CIT", "OBJ", "LOC", "TRU", "EMPTY"]
 
@@ -33,8 +33,8 @@ def oneHot_parameter(parameter, apn_list, cit_list, obj_list, loc_list, tru_list
 def invalid_encode():
     array = np.zeros(len(TYPES_OBJECT)+MAX_OBJECTS)
     array[len(TYPES_OBJECT)-1] = 1
+    array[len(TYPES_OBJECT)+MAX_OBJECTS - 1] = 1
     return array
-
 
 def oneHot(parameter, array, max_length):
     index = -1
@@ -48,6 +48,7 @@ def oneHot(parameter, array, max_length):
     return -1
 
 def oneHotToVect(code, array):
+    code = approximate(code)
     for i in range(len(code)):
         if code[i]==1:
             return array[i]
@@ -55,10 +56,10 @@ def oneHotToVect(code, array):
 
 def oneHotObjectToVect(object, apn_list, cit_list, obj_list, loc_list, tru_list):
     type = ""
-    for i in range(len(object)):
-        if object[i]==1:
+    temp = approximate(object[0:(len(TYPES_OBJECT))])
+    for i in range(len(TYPES_OBJECT)):
+        if temp[i]==1:
             type = TYPES_OBJECT[i]
-            break
     if "APN" in type:
         return str(oneHotToVect(object[len(TYPES_OBJECT):], apn_list))
     if "CIT" in type:
@@ -72,9 +73,16 @@ def oneHotObjectToVect(object, apn_list, cit_list, obj_list, loc_list, tru_list)
     if "EMPTY" in type:
         return "EMPTY"
 
+def approximate(code):
+    index = np.where(code == np.amax(code))[0][0]
+    app = np.zeros(len(code))
+    app[index] = 1
+    return app
+
 def oneHotActionToVect(code, apn_list, cit_list, obj_list, loc_list, tru_list):
-    for i in range(len(code)):
-        if code[i] == 1:
+    temp = approximate(code[0:(len(ACTIONS))])
+    for i in range(len(ACTIONS)):
+        if temp[i] == 1:
             string = ACTIONS[i]
             break
     for i in range((len(code)-len(ACTIONS))//MAX_OBJECTS):
@@ -131,16 +139,17 @@ def init(plans, apn_list, cit_list, obj_list, loc_list, tru_list):
             action.code_positiveEffects(np.asarray(pos))
             action.code_precondition(np.asarray(precond))
             action.code_negativeEffects(np.asarray(neg))
-    '''
-    for p in plans:
-        for action in p.actions:
-            print(action.name, oneHotActionToVect(oneHotAction(action.name, apn_list, cit_list, obj_list, loc_list, tru_list), apn_list, cit_list, obj_list, loc_list, tru_list))
-            for posEff in action.positiveEffects:
-                print(posEff, oneHotActionToVect(oneHotPredicate(posEff, apn_list, cit_list, obj_list, loc_list, tru_list), apn_list, cit_list, obj_list, loc_list, tru_list))
-            for prec in action.precondition:
-                print(prec, oneHotActionToVect(oneHotPredicate(prec, apn_list, cit_list, obj_list, loc_list, tru_list), apn_list, cit_list, obj_list, loc_list, tru_list))
-            neg = []
-            for negEff in action.negativeEffects:
-                print(negEff,oneHotActionToVect(oneHotPredicateNeg(negEff, apn_list, cit_list, obj_list, loc_list, tru_list), apn_list, cit_list, obj_list, loc_list, tru_list))
-    '''
+
+    
+    # for p in plans:
+    #     for action in p.actions:
+    #         print(action.name, oneHotActionToVect(oneHotAction(action.name, apn_list, cit_list, obj_list, loc_list, tru_list), apn_list, cit_list, obj_list, loc_list, tru_list))
+    #         for posEff in action.positiveEffects:
+    #             print(posEff, oneHotActionToVect(oneHotPredicate(posEff, apn_list, cit_list, obj_list, loc_list, tru_list), apn_list, cit_list, obj_list, loc_list, tru_list))
+    #         for prec in action.precondition:
+    #             print(prec, oneHotActionToVect(oneHotPredicate(prec, apn_list, cit_list, obj_list, loc_list, tru_list), apn_list, cit_list, obj_list, loc_list, tru_list))
+    #         neg = []
+    #         for negEff in action.negativeEffects:
+    #             print(negEff,oneHotActionToVect(oneHotPredicateNeg(negEff, apn_list, cit_list, obj_list, loc_list, tru_list), apn_list, cit_list, obj_list, loc_list, tru_list))
+    #
 
