@@ -35,15 +35,19 @@ if __name__ == '__main__':
         folder = "SOL_files"
         plans = utils.get_plans(folder)
         # domains = utils.logistics_domains(folder)
-        # statistics.init_statistics(domains)
-        # ave_arrays.save(domains, "domains.obj")
+        # save_arrays.save(domains, "domains.obj")
         # encoder.encoder(domains)
         # code = oneHot.init(plans, apn_list, cit_list, obj_list, loc_list, tru_list)
+        # db = crea_istanze.crea(plans)
+        #
+        # neuralNet.save_db(db)
+
         training = open("training_set", "rb")
         train = pickle.load(training)
 
         testing = open("test_set", "rb")
         test = pickle.load(testing)
+
 
         net = neuralNet.get_net(len(train[0][0]))
 
@@ -52,17 +56,19 @@ if __name__ == '__main__':
         test_x, test_y = neuralNet.split(test)
 
         print(net.summary())
-        history = net.fit(train_x, train_y, batch_size=128, epochs=60, verbose=2, validation_data=(test_x, test_y))
+        history = net.fit(train_x, {'action_type': train_y[0], 'type1': train_y[1], 'param1': train_y[2], 'type2': train_y[3],
+                                    'param2': train_y[4], 'type3': train_y[5], 'param3': train_y[6], 'type4': train_y[7], 'param4': train_y[8]},
+                                    batch_size=128, epochs=60, verbose=2)
+
         plt.plot(history.history['loss'])
-        plt.plot(history.history['val_loss'])
         plt.title('model loss')
         plt.ylabel('loss')
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper left')
         plt.show()
-        score = net.evaluate(test_x, test_y)
+        # score = net.evaluate(test_x, test_y)
         net.save("model")
-        print(score)
+        # print(score)
 
     else:
         name = sys.argv[1]

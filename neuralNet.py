@@ -18,48 +18,41 @@ def save_db(db):
 def split(set):
     set_x = [x[0] for x in set]
     set_y = [y[1] for y in set]
-    return np.array(set_x), np.array(set_y)
+    set_y = np.array(set_y)
+    len_action = len(set_y[0][0])
+    len_type = len(set_y[0][1])
+    len_param = len(set_y[0][2])
+
+    y = [crea_output(set_y, len_action, 0), crea_output(set_y, len_type, 1), crea_output(set_y, len_param, 2), crea_output(set_y, len_type, 3),
+         crea_output(set_y, len_param, 4), crea_output(set_y, len_type, 5), crea_output(set_y, len_param, 6), crea_output(set_y, len_type, 7), crea_output(set_y, len_param, 8)]
+
+    return np.array(set_x), y
+
+
+def crea_output(set, len_out, pos):
+    dim = len(set)
+    output = np.zeros((dim, len_out))
+
+    for i in range(dim):
+        output[i][:] = set[i, pos][:]
+    return output
 
 
 def get_net(dim):
     input = Input(shape=(dim,))
-    d1 = Dense(20, activation="linear")(input)
-    d2 = Dense(dim, activation="sigmoid")(d1)
-    model = Model(input, d2)
-    model.compile(optimizer=keras.optimizers.SGD(learning_rate=0.1), loss='mse')
+    d1 = Dense(100, activation="linear")(input)
+    o1 = Dense(10, activation="softmax", name='action_type')(d1)
+    o2 = Dense(6, activation="softmax", name='type1')(d1)
+    o3 = Dense(104, activation="softmax", name='param1')(d1)
+    o4 = Dense(6, activation="softmax", name='type2')(d1)
+    o5 = Dense(104, activation="softmax", name='param2')(d1)
+    o6 = Dense(6, activation="softmax", name='type3')(d1)
+    o7 = Dense(104, activation="softmax", name='param3')(d1)
+    o8 = Dense(6, activation="softmax", name='type4')(d1)
+    o9 = Dense(104, activation="softmax", name='param4')(d1)
+    model = Model(input=input, outputs=[o1, o2, o3, o4, o5, o6, o7, o8, o9])
+    adam = keras.optimizers.Adam(learning_rate=0.1, beta_1=0.9, beta_2=0.999, amsgrad=False)
+    model.compile(optimizer=adam, loss='categorical_crossentropy')
     return model
 
 
-def get_k_fold_data(k, i, X, y):
-    assert k > 1
-    fold_size = X.shape[0] // k
-    X_train, y_train = None, None
-    for j in range(k):
-        idx = slice(j * fold_size, (j + 1) * fold_size)
-        X_part, y_part = X[idx, :], y[idx]
-        if j == i:
-            X_valid, y_valid = X_part, y_part
-        elif X_train is None:
-            X_train, y_train = X_part, y_part
-        else:
-            X_train = np.concatenate([X_train, X_part], axis=0)
-            y_train = np.concatenate([y_train, y_part], axis=0)
-    return X_train, y_train, X_valid, y_valid
-
-
-def k_fold(k, X_train, y_train, num_epochs, batch_size):
-    train_l_sum, valid_l_sum = 0, 0
-    for i in range(k):
-        data = get_k_fold_data(k, i, X_train, y_train)
-        net = get_net(len(X_train[0]))
-        history = net.fit(data[0], data[1], epochs=num_epochs, batch_size=batch_size, verbose=2,
-                          validation_data=(data[2], data[3]))
-        if i == 0:
-            plt.plot(history.history['loss'])
-            plt.plot(history.history['val_loss'])
-            plt.title('model loss')
-            plt.ylabel('loss')
-            plt.xlabel('epoch')
-            plt.legend(['train', 'test'], loc='upper left')
-            plt.show()
-    return train_l_sum / k, valid_l_sum / k
