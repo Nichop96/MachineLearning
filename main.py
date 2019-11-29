@@ -15,38 +15,18 @@ if __name__ == '__main__':
 
     if len(sys.argv) == 1:
 
-        file1 = open("apn.obj", "rb")
-        apn_list = pickle.load(file1)
-        file2 = open("cit.obj", "rb")
-        cit_list = pickle.load(file2)
-        file3 = open("obj.obj", "rb")
-        obj_list = pickle.load(file3)
-        file4 = open("loc.obj", "rb")
-        loc_list = pickle.load(file4)
-        file5 = open("tru.obj", "rb")
-        tru_list = pickle.load(file5)
-
-        apn_list = na.natsorted(apn_list[1:])
-        cit_list = na.natsorted(cit_list)
-        obj_list = na.natsorted(obj_list[1:])
-        tru_list = na.natsorted(tru_list)
-        loc_list = na.natsorted(loc_list)
-
-        folder = "SOL_files"
-        plans = utils.get_plans(folder)
-        # domains = utils.logistics_domains(folder)
-        # save_arrays.save(domains, "domains.obj")
-        # encoder.encoder(domains)
-        # code = oneHot.init(plans, apn_list, cit_list, obj_list, loc_list, tru_list)
-        # db = crea_istanze.crea(plans)
-        #
-        # neuralNet.save_db(db)
-
         training = open("training_set", "rb")
         train = pickle.load(training)
 
+        val = open("validation_set", "rb")
+        validation = pickle.load(val)
+
         testing = open("test_set", "rb")
         test = pickle.load(testing)
+
+        print(len(train))
+        print(len(validation))
+        print(len(test))
 
 
         net = neuralNet.get_net(len(train[0][0]))
@@ -60,15 +40,8 @@ if __name__ == '__main__':
                                     'param2': train_y[4], 'type3': train_y[5], 'param3': train_y[6], 'type4': train_y[7], 'param4': train_y[8]},
                                     batch_size=128, epochs=60, verbose=2)
 
-        plt.plot(history.history['loss'])
-        plt.title('model loss')
-        plt.ylabel('loss')
-        plt.xlabel('epoch')
-        plt.legend(['train', 'test'], loc='upper left')
-        plt.show()
-        # score = net.evaluate(test_x, test_y)
-        net.save("model")
-        # print(score)
+        save_arrays.save(history, 'history')
+
 
     else:
         name = sys.argv[1]
