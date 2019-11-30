@@ -18,17 +18,12 @@ if __name__ == '__main__':
         training = open("training_set", "rb")
         train = pickle.load(training)
 
-        val = open("validation_set", "rb")
-        validation = pickle.load(val)
-
         testing = open("test_set", "rb")
         test = pickle.load(testing)
 
         net = neuralNet.get_net(len(train[0][0]))
 
         train_x, train_y = neuralNet.split(train)
-
-        val_x, val_y = neuralNet.split(validation)
 
         test_x, test_y = neuralNet.split(test)
 
