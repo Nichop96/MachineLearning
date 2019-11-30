@@ -30,11 +30,8 @@ if __name__ == '__main__':
         db = crea_istanze.crea(plans)
 
         np.random.shuffle(db)
-        dim1 = int(0.8 * len(db))
-        dim2 = int(0.1 * len(db))
-        train, test = db[:dim1], db[dim1:]
-        train, validation = train[dim2:], train[:dim2]
+        dim = int(0.8 * len(db))
+        train, test = db[:dim], db[dim:]
         save_arrays.save(train, "training_set")
         save_arrays.save(test, "test_set")
-        save_arrays.save(validation, "validation_set")
         print('dataset created')

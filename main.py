@@ -24,21 +24,18 @@ if __name__ == '__main__':
         testing = open("test_set", "rb")
         test = pickle.load(testing)
 
-        print(len(train))
-        print(len(validation))
-        print(len(test))
-
-
         net = neuralNet.get_net(len(train[0][0]))
 
         train_x, train_y = neuralNet.split(train)
+
+        val_x, val_y = neuralNet.split(validation)
 
         test_x, test_y = neuralNet.split(test)
 
         print(net.summary())
         history = net.fit(train_x, {'action_type': train_y[0], 'type1': train_y[1], 'param1': train_y[2], 'type2': train_y[3],
                                     'param2': train_y[4], 'type3': train_y[5], 'param3': train_y[6], 'type4': train_y[7], 'param4': train_y[8]},
-                                    batch_size=128, epochs=60, verbose=2)
+                                    batch_size=128, epochs=60, verbose=2, validation_split=0.1)
 
         save_arrays.save(history, 'history')
 
