@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 
 if __name__ == '__main__':
 
+        # da aggiustare i plot
         history = open("history", "rb")
         history = pickle.load(history)
 
@@ -19,7 +20,7 @@ if __name__ == '__main__':
         plt.title('model loss')
         plt.ylabel('loss')
         plt.xlabel('epoch')
-        plt.legend(['train', 'test'], loc='upper left')
+        plt.legend(['train'], loc='upper left')
         plt.show()
 
 

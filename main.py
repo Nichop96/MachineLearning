@@ -30,23 +30,29 @@ if __name__ == '__main__':
         print(net.summary())
         history = net.fit(train_x, {'action_type': train_y[0], 'type1': train_y[1], 'param1': train_y[2], 'type2': train_y[3],
                                     'param2': train_y[4], 'type3': train_y[5], 'param3': train_y[6], 'type4': train_y[7], 'param4': train_y[8]},
-                                    batch_size=128, epochs=60, verbose=2, validation_split=0.1)
+                                    batch_size=128, epochs=10, verbose=2, validation_split=0.1)
 
         save_arrays.save(history, 'history')
+
+        net.save('model')
 
 
     else:
         name = sys.argv[1]
         model = load_model(name)
-        testing = open("test_set", "rb")
+        testing = open("mini_test", "rb")
         test = pickle.load(testing)
         test_x, test_y = neuralNet.split(test)
         res_y = model.predict(test_x)
         l = []
-        for i in range(len(res_y)):
-            tmp = np.zeros((2, len(test_y[0])))
-            tmp[0][:] = res_y[i][:]
-            tmp[1][:] = test_y[i][:]
+        for i in range(len(res_y[0])):
+            pred = np.array([])
+            correct = np.array([])
+            for j in range(len(test_y)):
+                pred = np.concatenate((pred, res_y[j][i][:]))
+                correct = np.concatenate((correct, test_y[j][i][:]))
+            tmp = np.zeros((2, len(pred)))
+            tmp[0][:] = pred[:]
+            tmp[1][:] = correct[:]
             l.append(tmp)
-        a = np.sum(np.power(np.absolute(np.subtract(tmp[0], tmp[1])), 2))/len(tmp[0])
         print('fine')
